@@ -12,20 +12,24 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import A4
 
-# Initialize EasyOCR reader for handwriting recognition
-print("Loading EasyOCR model...")
-ocr_reader = easyocr.Reader(['en'], gpu=False)  # Set gpu=True if CUDA available
-print("EasyOCR model loaded successfully!")
+ocr_reader = None
+spell = None
 
-# Initialize SpellChecker
-print("Loading SpellChecker...")
-spell = SpellChecker()
-print("SpellChecker loaded successfully!")
+def initialize_models():
+    global ocr_reader, spell
+
+    if ocr_reader is None:
+        print("Loading EasyOCR...")
+        ocr_reader = easyocr.Reader(['en'], gpu=False)
+
+    if spell is None:
+        print("Loading SpellChecker...")
+        spell = SpellChecker()
 
 app = Flask(__name__)
 CORS(app)  # allow requests from frontend
 
-UPLOAD_DIR = r"D:\capstone_project - Copy\notex-backend\uploads"
+UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 HISTORY_FILE = os.path.join(os.path.dirname(__file__), "history.json")
@@ -235,6 +239,7 @@ def login():
 
 @app.route("/convert", methods=["POST"])
 def convert():
+    initialize_models()
     file = request.files.get("file")
 
     if not file:
@@ -428,6 +433,7 @@ CONFIDENCE_LOW = 40     # Below this = rejected
 # Between 40-80 = uncertain (included but flagged)
 
 def process_single_image(file):
+    initialize_models()
     """Process a single image and return result dict using EasyOCR"""
     original_filename = secure_filename(file.filename)
     name, ext = os.path.splitext(original_filename)
