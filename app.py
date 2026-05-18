@@ -26,6 +26,15 @@ def initialize_models():
         print("Loading SpellChecker...")
         spell = SpellChecker()
 
+        spell.word_frequency.load_words([
+            'redditors',
+            'cursives',
+            'reddit',
+            'subreddit',
+            'upvote',
+            'downvote'
+        ])
+
 app = Flask(__name__)
 CORS(app)  # allow requests from frontend
 
@@ -47,7 +56,6 @@ HANDWRITING_FIXES = {
 }
 
 # Add custom words to spell checker
-spell.word_frequency.load_words(['redditors', 'cursives', 'reddit', 'subreddit', 'upvote', 'downvote'])
 
 DEMO_USER = {"email":"demo@notex.local","password":"demo123","name":"Demo User"}
 
